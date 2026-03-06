@@ -20,12 +20,13 @@
         </div>
         
         <div v-else class="strategy-cards">
-          <el-collapse accordion>
+          <el-collapse v-model="activeStrategy" accordion>
             <el-collapse-item 
               v-for="strategy in strategyList" 
               :key="strategy.name"
               :title="strategy.description"
               :name="strategy.name"
+              @mouseenter="activeStrategy = strategy.name"
             >
               <div class="strategy-detail">
                 <div class="strategy-info">
@@ -73,10 +74,18 @@ import { getStrategies, type Strategy } from '@/services/quantBacktestApi'
 const router = useRouter()
 
 // 数据状态
+/** 策略列表数据 */
 const strategyList = ref<Strategy[]>([])
+/** 加载状态 */
 const loading = ref(false)
+/** 当前展开的策略名称 */
+const activeStrategy = ref('')
 
-// 格式化策略参数为表格数据
+/**
+ * 格式化策略参数为表格数据
+ * @param params 策略参数对象
+ * @returns 格式化后的表格数据数组
+ */
 const formatStrategyParams = (params: Record<string, any>) => {
   return Object.entries(params).map(([key, value]) => ({
     name: key,
@@ -86,12 +95,17 @@ const formatStrategyParams = (params: Record<string, any>) => {
   }))
 }
 
-// 跳转到创建回测页面
+/**
+ * 跳转到创建回测页面
+ */
 const goToCreateBacktest = () => {
   router.push('/backtest-strategy')
 }
 
-// 跳转到创建回测页面并预选策略
+/**
+ * 跳转到创建回测页面并预选策略
+ * @param strategyName 策略名称
+ */
 const goToCreateBacktestWithStrategy = (strategyName: string) => {
   router.push({
     path: '/backtest-strategy',
@@ -99,7 +113,10 @@ const goToCreateBacktestWithStrategy = (strategyName: string) => {
   })
 }
 
-// 加载策略列表
+/**
+ * 加载策略列表
+ * @returns Promise<void>
+ */
 const loadStrategyList = async () => {
   loading.value = true
   try {
